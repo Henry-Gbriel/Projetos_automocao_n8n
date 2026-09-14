@@ -1,0 +1,358 @@
+{
+  "name": "Workflow Conexão",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Questionário n8n",
+        "formDescription": "Você trabalha com n8n? Vou te mandar o guia para integrar com Google",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Qual seu nome?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual seu número?",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Qual seu email?",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Você já trabalhou com n8n?",
+              "fieldType": "checkbox",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sim"
+                  },
+                  {
+                    "option": "Não"
+                  },
+                  {
+                    "option": "Nem sei o que é"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6123d569-5149-4755-8fd6-6c2b7925b60c",
+      "name": "On form submission",
+      "webhookId": "3838c245-fcec-47a0-b8e4-e8877cf197fa"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ",
+          "mode": "list",
+          "cachedResultName": "formulario_jornada",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome ": "={{ $json['Qual seu nome?'] }}",
+            "ja_usou_n8n": "={{ $json['Você já trabalhou com n8n?'][0] }}",
+            "email": "={{ $json['Qual seu email?'] }}",
+            "data": "={{ $json.submittedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nome ",
+              "displayName": "Nome ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ja_usou_n8n",
+              "displayName": "ja_usou_n8n",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "3d91822e-3799-415a-abf0-c328983788e8",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PkdufG596Yezd7Wc",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1zrvmXfBG965-NlvHv6A_DBtSs44MzHX44uJbZ2mubb8",
+          "mode": "list",
+          "cachedResultName": "Modulo_2_Integracoes_com_n8n",
+          "cachedResultUrl": "https://docs.google.com/document/d/1zrvmXfBG965-NlvHv6A_DBtSs44MzHX44uJbZ2mubb8/edit?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        464,
+        0
+      ],
+      "id": "79e77d54-ebe9-4c83-bc3e-02d01b68cc64",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "am7mHJdX9lGLZ27I",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Envio do Documento da jornada n8n ",
+        "message": "=<p>Olá, tudo bem?</p>\n\n<p>Conforme solicitado, estou enviando em anexo o documento referente à <strong>Jornada n8n</strong>.</p>\n\n<p>Permaneço à disposição em caso de dúvidas ou se precisar de alguma informação adicional.</p>\n\n<p>Atenciosamente,<br>\n<strong>Henry Gabriel Santos Silva</strong></p>",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "14aa19c9-3224-4084-8fb3-8829d7db5745",
+      "name": "Send a message",
+      "webhookId": "6ca0826f-61a2-4afd-97c6-8d9fd10f2857",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QuPGwVXv7MZ4PZ1Q",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ",
+          "mode": "list",
+          "cachedResultName": "formulario_jornada",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SWg2sYiFCu827yfTDe7ptudgR_bveBAZYreDkdJpzbQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Append row in sheet').item.json.email }}",
+            "envio": "=SENT",
+            "data": "={{ $('Append row in sheet').item.json.data }}",
+            "Nome ": "=",
+            "ja_usou_n8n": "="
+          },
+          "matchingColumns": [
+            "data"
+          ],
+          "schema": [
+            {
+              "id": "Nome ",
+              "displayName": "Nome ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ja_usou_n8n",
+              "displayName": "ja_usou_n8n",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "envio",
+              "displayName": "envio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        912,
+        0
+      ],
+      "id": "4d26023d-a41b-4185-bb9f-87840dcc3d6e",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PkdufG596Yezd7Wc",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6aa7a45a-388d-4322-9405-451b9b858bae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09bb54abc05b1bbbbe9ab9d9e0f59f4472bba3881e4d3f4f551069f5fbeb24cb"
+  },
+  "nodeGroups": [],
+  "id": "UfYpgP5igAVOz1CI",
+  "tags": []
+}
