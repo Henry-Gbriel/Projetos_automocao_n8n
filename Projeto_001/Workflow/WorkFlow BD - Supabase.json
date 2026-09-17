@@ -1,0 +1,290 @@
+{
+  "name": "WorkFlow BD - Supabase",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "ff916ea3-45f5-4aa9-a36e-bbad2106fd66",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "consumos_clientes",
+          "mode": "list",
+          "cachedResultName": "consumos_clientes"
+        },
+        "limit": 400,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        192,
+        176
+      ],
+      "id": "98b61fcf-ba75-4ace-bcce-ab8360460939",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.clientes (\n    nome,\n    email,\n    telefone,\n    cidade,\n    estado,\n    status,\n    origem,\n    criado_em,\n    retorno_financeiro\n)\nVALUES (\n    'Cliente 101',\n    'cliente101@exemplo.com',\n    '11900000041',\n    'Rio de Janeiro',\n    'RJ',\n    'ativo',\n    'telegram',\n    NOW(),\n    100000.10\n)\nON CONFLICT (email)\nDO UPDATE SET\n    nome = EXCLUDED.nome,\n    telefone = EXCLUDED.telefone,\n    cidade = EXCLUDED.cidade,\n    estado = EXCLUDED.estado,\n    status = EXCLUDED.status,\n    origem = EXCLUDED.origem,\n    retorno_financeiro = EXCLUDED.retorno_financeiro;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        656,
+        32
+      ],
+      "id": "164c0d98-b976-4e05-9e36-ec5a54f5c1c9",
+      "name": "New Client",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "clientes",
+        "limit": 400
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -160
+      ],
+      "id": "b077b9a1-ef31-4e78-83da-df14d129d6fc",
+      "name": "Acessa row table client",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5QQcHvsbWm6qEJnx",
+          "name": "Supabase Acess"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.consumos_clientes (\n    cliente_id,\n    produto,\n    quantidade,\n    valor_unitario,\n    valor_total,\n    data_consumo\n)\nSELECT\n    id,\n    'Notebook',\n    1,\n    3500.00,\n    3500.00,\n    NOW()\nFROM public.clientes\nWHERE email = 'cliente101@exemplo.com'\nRETURNING *;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        864,
+        32
+      ],
+      "id": "6d85a39f-439e-4d2b-8d8c-b5f091de2f9b",
+      "name": "New Consume",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "henrygabrielsantossilva202@gmail.com",
+        "subject": "={{$json.assunto}}",
+        "message": "={{$json.mensagem}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        32
+      ],
+      "id": "0b41472e-0d18-48ef-bd67-a62f2b2a594d",
+      "name": "Send a message",
+      "webhookId": "1bdfd576-e791-4f12-9a05-154a1bd5d22c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QuPGwVXv7MZ4PZ1Q",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const registros = $input.all();\n\nconst linhas = registros.map(item => {\n  const r = item.json;\n\n  return `\n    <tr>\n      <td>${r.nome ?? ''}</td>\n      <td>${r.email ?? ''}</td>\n      <td>${r.produto ?? ''}</td>\n      <td>${r.quantidade ?? ''}</td>\n      <td>R$ ${r.valor_total ?? ''}</td>\n    </tr>\n  `;\n}).join('');\n\nreturn [{\n  json: {\n    assunto: 'Relatório de clientes e consumos',\n    mensagem: `\n      <h2>Relatório de clientes e consumos</h2>\n      <p>Total de registros: ${registros.length}</p>\n\n      <table border=\"1\" cellpadding=\"8\" cellspacing=\"0\">\n        <tr>\n          <th>Cliente</th>\n          <th>E-mail</th>\n          <th>Produto</th>\n          <th>Quantidade</th>\n          <th>Valor total</th>\n        </tr>\n        ${linhas}\n      </table>\n    `\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        32
+      ],
+      "id": "134e1dea-6a11-41ce-acba-ad85c607280d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    c.id AS cliente_id,\n    c.nome,\n    c.email,\n    c.cidade,\n    c.estado,\n    co.produto,\n    co.quantidade,\n    co.valor_unitario,\n    co.valor_total,\n    co.data_consumo\nFROM public.clientes AS c\nINNER JOIN public.consumos_clientes AS co\n    ON co.cliente_id = c.id\nORDER BY co.data_consumo DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        1072,
+        32
+      ],
+      "id": "64920626-3865-4f08-841e-eadb8faa63b4",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        32
+      ],
+      "id": "83ea7659-73cf-4e49-9cc1-57f719fe35a2",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Acessa row table client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Acessa row table client": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Client": {
+      "main": [
+        [
+          {
+            "node": "New Consume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Consume": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "New Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ed6d252c-37c6-4618-a045-85539c3f77c3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09bb54abc05b1bbbbe9ab9d9e0f59f4472bba3881e4d3f4f551069f5fbeb24cb"
+  },
+  "nodeGroups": [],
+  "id": "yeNw4JUshVUnOjFF",
+  "tags": []
+}
