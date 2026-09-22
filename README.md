@@ -1,6 +1,6 @@
 # Projetos de Automação com n8n
 
-Repositório destinado ao desenvolvimento de projetos de automação utilizando o **n8n**, integrações com APIs, serviços em nuvem, bancos de dados e aplicações backend.
+Repositório destinado ao desenvolvimento de projetos de automação utilizando o **n8n**, integrações com APIs, serviços em nuvem, bancos de dados, inteligência artificial e aplicações backend.
 
 O objetivo é reunir automações que solucionam problemas reais, reduzem atividades manuais e demonstram diferentes possibilidades de integração entre sistemas.
 
@@ -31,6 +31,9 @@ As automações deste repositório exploram conceitos como:
 - Modelagem de bancos de dados;
 - Mensageria;
 - Aplicações backend;
+- Agentes de inteligência artificial;
+- Processamento de linguagem natural;
+- Memória conversacional;
 - Tratamento de erros;
 - Monitoramento de execuções;
 - Sincronização de fluxos paralelos;
@@ -42,7 +45,7 @@ As automações deste repositório exploram conceitos como:
 |---|---|---|---|
 | [Projeto 000 — Envio automatizado de documentos](Projeto_000/) | Recebe informações por formulário, registra os dados em uma planilha, baixa um documento do Google Drive, envia o arquivo por e-mail e atualiza o status do processamento. | n8n, Google Sheets, Google Drive e Gmail | Concluído |
 | [Projeto 001 — Integração de clientes e consumos](Projeto_001/) | Consulta clientes e consumos, sincroniza diferentes fontes, relaciona dados com SQL e envia um relatório em HTML por e-mail. | n8n, Supabase, PostgreSQL, JavaScript e Gmail | Concluído |
-| Projeto 002 | Em desenvolvimento | A definir | Planejado |
+| [Projeto 002 — Assistente inteligente com IA](Projeto_002/) | Recebe perguntas pelo Telegram, utiliza um agente de IA para interpretar solicitações, consulta dados no PostgreSQL, mantém a memória da conversa e envia respostas organizadas ao usuário. | n8n, Telegram, OpenAI, PostgreSQL, SQL e AI Agent | Concluído |
 
 Esta tabela será atualizada conforme novos projetos forem desenvolvidos.
 
@@ -71,6 +74,16 @@ Projetos_automocao_n8n/
 │   │   └── relatorio_clientes_consumos.sql
 │   ├── workflow/
 │   │   └── workflow.json
+│   └── README.md
+│
+├── Projeto_002/
+│   ├── Workflow/
+│   │   └── Project_Agent000.json
+│   ├── imagens/
+│   │   ├── excalidraw_project.png
+│   │   ├── n8n_project.png
+│   │   └── telegram_result.png
+│   ├── sql/
 │   └── README.md
 │
 ├── LICENSE
@@ -166,6 +179,62 @@ A documentação completa está disponível na pasta:
 
 [Ver Projeto 001](Projeto_001/)
 
+## Projeto 002 — Assistente inteligente com IA, Telegram e PostgreSQL
+
+O terceiro projeto implementa um assistente inteligente capaz de receber perguntas pelo Telegram, consultar dados no PostgreSQL e devolver respostas organizadas em linguagem natural.
+
+O workflow executa as seguintes etapas:
+
+1. Recebe uma mensagem pelo Telegram;
+2. Encaminha a pergunta para o AI Agent;
+3. Utiliza um modelo de IA para interpretar a solicitação;
+4. Gera uma consulta SQL de leitura;
+5. Executa a consulta no PostgreSQL;
+6. Analisa e organiza os dados retornados;
+7. Armazena o contexto da conversa no PostgreSQL;
+8. Envia a resposta ao usuário pelo Telegram.
+
+A arquitetura do projeto é representada por:
+
+```mermaid
+flowchart LR
+    A["Usuário no Telegram"] --> B["Telegram Trigger"]
+    B --> C["AI Agent"]
+    C --> D["Modelo de IA"]
+    C <--> E["Memória no PostgreSQL"]
+    C --> F["Consulta SQL no PostgreSQL"]
+    F --> C
+    C --> G["Resposta no Telegram"]
+```
+
+Entre os conceitos aplicados estão:
+
+- Agentes de inteligência artificial;
+- Processamento de linguagem natural;
+- Integração entre Telegram e n8n;
+- Consultas dinâmicas ao PostgreSQL;
+- Geração de consultas SQL;
+- Uso de ferramentas pelo AI Agent;
+- Memória conversacional;
+- Identificação de sessões pelo `chat.id`;
+- Organização automática dos resultados;
+- Integração orientada a eventos;
+- Segurança de acesso ao banco de dados.
+
+O projeto também inclui:
+
+- Workflow exportado em JSON;
+- Memória de conversa armazenada no PostgreSQL;
+- Consulta às tabelas de clientes e consumos;
+- Imagem da arquitetura;
+- Imagem do workflow no n8n;
+- Imagem do resultado no Telegram;
+- Documentação para configuração e importação.
+
+A documentação completa está disponível na pasta:
+
+[Ver Projeto 002](Projeto_002/)
+
 ## Como importar um workflow
 
 1. Abra a pasta do projeto desejado;
@@ -188,6 +257,11 @@ As principais tecnologias utilizadas nos projetos incluem:
 - [n8n](https://n8n.io/)
 - [Supabase](https://supabase.com/)
 - PostgreSQL
+- Telegram Bot API
+- OpenAI
+- AI Agents
+- Modelos de linguagem
+- Memória conversacional
 - APIs REST
 - Webhooks
 - Google Sheets
@@ -213,12 +287,14 @@ Antes de publicar ou utilizar qualquer workflow, verifique se foram removidos:
 - Senhas;
 - Tokens de acesso;
 - Chaves de API;
+- Tokens de bots do Telegram;
 - Chaves do Supabase;
 - Chave `service_role`;
 - String de conexão do PostgreSQL;
 - Client ID e Client Secret;
 - Credenciais do n8n;
 - Credenciais do Gmail;
+- Credenciais de modelos de inteligência artificial;
 - E-mails e telefones reais;
 - Dados pessoais reais;
 - IDs privados de arquivos e planilhas;
@@ -230,6 +306,8 @@ Cada usuário deve configurar suas próprias credenciais depois de importar o wo
 
 Os dados apresentados nos projetos são fictícios e utilizados exclusivamente para estudos.
 
+Nos projetos com agentes de IA, recomenda-se utilizar um usuário de banco exclusivo, com acesso somente de leitura e limitado às tabelas necessárias.
+
 ## Objetivos
 
 Este repositório foi criado com os objetivos de:
@@ -240,6 +318,8 @@ Este repositório foi criado com os objetivos de:
 - Explorar recursos avançados do n8n;
 - Praticar integração com bancos de dados;
 - Trabalhar com processamento de dados;
+- Desenvolver agentes de inteligência artificial;
+- Explorar processamento de linguagem natural;
 - Documentar os aprendizados obtidos;
 - Construir um portfólio técnico;
 - Compartilhar conhecimento com a comunidade.
@@ -250,7 +330,7 @@ Entre as evoluções planejadas estão:
 
 - Novas automações integradas com APIs;
 - Projetos envolvendo aplicações backend;
-- Integrações com bancos de dados;
+- Integrações com novos bancos de dados;
 - Processamento orientado a eventos;
 - Uso de filas e mensageria;
 - Implementação de idempotência;
@@ -259,7 +339,11 @@ Entre as evoluções planejadas estão:
 - Notificações e monitoramento;
 - Relatórios em CSV e Excel;
 - Dashboards para acompanhamento;
-- Automações com inteligência artificial;
+- Evolução dos agentes de inteligência artificial;
+- Integração dos agentes com novas fontes de dados;
+- Controle de acesso aos agentes pelo Telegram;
+- Monitoramento do consumo de tokens;
+- Paginação de respostas extensas;
 - Deploy de serviços complementares em nuvem.
 
 ## Autor
