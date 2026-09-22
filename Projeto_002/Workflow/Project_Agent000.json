@@ -1,0 +1,207 @@
+{
+  "name": "Project_Agent000",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        304,
+        -224
+      ],
+      "id": "5b0fb437-f3a2-4632-8c61-09d2c8ba928f",
+      "name": "Telegram Trigger",
+      "webhookId": "fbfcb429-2001-4d55-9e53-4e715cba3323",
+      "credentials": {
+        "telegramApi": {
+          "id": "YggSOxcsvgkTXHkG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        -224
+      ],
+      "id": "c554b3e3-4794-45bd-87e0-e8a8b1b02d74",
+      "name": "Send a text message1",
+      "webhookId": "47abeba5-d734-400e-a80b-c2b088e20c78",
+      "credentials": {
+        "telegramApi": {
+          "id": "YggSOxcsvgkTXHkG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Use esta ferramenta sempre que o usuário perguntar sobre clientes ou consumos.\n\nTabelas disponíveis:\n- public.clientes: dados cadastrais dos clientes.\n- public.consumos_clientes: registros de consumo dos clientes.\n\nRelacionamento:\npublic.clientes.id = public.consumos_clientes.cliente_id.\n\nConsulte uma ou ambas as tabelas conforme a pergunta. Use JOIN quando precisar relacionar clientes aos seus consumos. Execute somente SELECT e responda apenas com dados encontrados no banco.",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI('query', 'Gere uma consulta PostgreSQL usando somente SELECT para responder à pergunta do usuário.', 'string') }}",
+        "options": {
+          "queryReplacement": ""
+        }
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.7,
+      "position": [
+        928,
+        0
+      ],
+      "id": "135fc234-f2d7-4300-8d19-bb1fcf933a39",
+      "name": "Execute a SQL query in Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        544,
+        -224
+      ],
+      "id": "a15045c2-f4dc-4869-b4a8-62b7d77f57c2",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id.toString() }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        656,
+        0
+      ],
+      "id": "e17882a6-d24b-4d51-95b7-6fd128f14fb0",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "BHJDNaJ6zzlU1DMt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "ccf009dd-0188-45b9-b495-8e168a45e4c5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query in Postgres": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6dcce201-2448-4128-86e3-f33b2a0c52b7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "09bb54abc05b1bbbbe9ab9d9e0f59f4472bba3881e4d3f4f551069f5fbeb24cb"
+  },
+  "nodeGroups": [],
+  "id": "u2CUAmKNVbIIT6C4",
+  "tags": []
+}
